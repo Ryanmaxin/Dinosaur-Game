@@ -26,7 +26,6 @@ using namespace std;
 
 // Constants
 
-// Disable JUST this warning (in case students choose not to use some of these constants)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-const-variable"
 
