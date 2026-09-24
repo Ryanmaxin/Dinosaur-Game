@@ -1,0 +1,11 @@
+# Compiled executables and debug symbols
+/Dinosaur
+/FinalProject
+*.dSYM/
+
+# Local editor and macOS files
+.DS_Store
+.vscode/
+
+# Legacy executable (already tracked in Git)
+/start

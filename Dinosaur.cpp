@@ -1,8 +1,5 @@
-// compile with: clang++ -std=c++20 -Wall -Werror -Wextra -Wpedantic -g3 -o FinalProject FinalProject.cpp
-// run with: ./fishies 2> /dev/null
-// run with: ./fishies 2> debugoutput.txt
-//  "2>" redirect standard error (STDERR; cerr)
-//  /dev/null is a "virtual file" which discard contents
+// Build with: make
+// Run with: make run
 
 // Works best in Visual Studio Code if you set:
 //   Settings -> Features -> Terminal -> Local Echo Latency Threshold = -1
@@ -19,7 +16,12 @@
 #include <unistd.h>  // for read()
 #include <fcntl.h>   // to enable / disable non-blocking read()
 #include <stdlib.h>
-#include <experimental/random>
+
+std::mt19937 rng;
+
+int randint(int from, int to){
+    return std::uniform_int_distribution<int>(from, to)(rng);
+}
 
 // Because we are only using #includes from the standard, names shouldn't conflict
 using namespace std;
@@ -103,7 +105,7 @@ struct player
 
 struct cloud
 {
-    position position{experimental::randint(0, screenWidth / 2 + screenWidth / 10), experimental::randint(0, screenLength)}; //This code makes sure the clouds spawn outside of the play area
+    position position{randint(0, screenWidth / 2 + screenWidth / 10), randint(0, screenLength)}; //This code makes sure the clouds spawn outside of the play area
     //position position{cloudrows(generator), cloudcols(generator)}; //!!! When this "proper" code is used, the game compiles but instantly seg faults when ran. I believe this code doesn't like when screenWidth and screenLength are used, as it also breaks the game when used for the initial positions of the obstacles aswell
     unsigned int velocity{cloudvelocity(generator)}; //Determines how fast the clouds move. They will move anywhere from 1 to 5 units per tick depending on a uniform distribution
     unsigned int destructSequence{0}; //This variable is used to destroy visible parts of the cloud in iterations once it reaches the end of the screen, until the cloud is completely invisible
@@ -157,7 +159,6 @@ auto SetNonblockingReadState(bool desiredState = true) -> void
     {
         fcntl(0, F_SETFL, (currentFlags & (~O_NONBLOCK)));
     }
-    cerr << "SetNonblockingReadState [" << desiredState << "]" << endl;
 }
 // Everything from here on is based on ANSI codes
 // Note the use of "flush" after every write to ensure the screen updates
@@ -775,9 +776,9 @@ auto main() -> int
     // obstacle ob3{.position = {screenWidth - 3, obspawns(generator)}};
 
     //Again the function from the random class did not want to work with screenLength and screenWidth
-    obstacle ob1{.position = {screenWidth - 3, experimental::randint(100, screenLength)}};
-    obstacle ob2{.position = {screenWidth - 3, experimental::randint(100, screenLength)}};
-    obstacle ob3{.position = {screenWidth - 3, experimental::randint(100, screenLength)}};
+    obstacle ob1{.position = {screenWidth - 3, randint(100, screenLength)}};
+    obstacle ob2{.position = {screenWidth - 3, randint(100, screenLength)}};
+    obstacle ob3{.position = {screenWidth - 3, randint(100, screenLength)}};
 
     char currentChar{};
     string currentCommand;
@@ -810,7 +811,6 @@ auto main() -> int
                 (allowBackgroundProcessing and (elapsed >= elapsedTimePerTick)) or (not allowBackgroundProcessing))
             {
                 ticks++;
-                cerr << "Ticks [" << ticks << "] allowBackgroundProcessing [" << allowBackgroundProcessing << "] elapsed [" << elapsed << "] currentChar [" << currentChar << "] currentCommand [" << currentCommand << "]" << endl;
                 // if (currentChar == BLOCKING_CHAR) // Toggle background processing      
                 // {
 
@@ -913,7 +913,6 @@ auto main() -> int
                     cout << currentChar << flush; // the flush is important since we are in non-echoing mode
                     currentCommand += currentChar;
                 }
-                cerr << "Received command [" << currentCommand << "]" << endl;
                 currentChar = NULL_CHAR;
             }
             else
